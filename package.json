@@ -1,0 +1,20 @@
+{
+  "name": "pulaude",
+  "description": "Claude's pulse — a physical status indicator",
+  "version": "0.0.1",
+  "module": "index.ts",
+  "scripts": {
+    "dev:server": "bun run server/index.ts",
+    "dev:web": "cd web && bun run dev",
+    "build": "cd web && bun run build",
+    "start": "NODE_ENV=production bun run server/index.ts"
+  },
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
