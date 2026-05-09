@@ -7,7 +7,8 @@ export type State =
   | 'WORKING'
   | 'COMPLETE'
   | 'ERROR'
-  | 'APPROVAL';
+  | 'APPROVAL'
+  | 'DISCONNECTED';
 
 interface VisualConfig {
   orbColor: string;
@@ -109,6 +110,15 @@ const STATE_VISUALS: Record<State, VisualConfig> = {
     pulseFreq: 0.015,
     pulseAmp: 8,
   },
+  DISCONNECTED: {
+    orbColor: '#636e72',
+    glowColor: '#b2bec3',
+    glowRadius: 40,
+    particleCount: 20,
+    particleSpeed: 0.002,
+    pulseFreq: 0.005,
+    pulseAmp: 3,
+  },
 };
 
 export class ClaudeEngine {
@@ -136,7 +146,7 @@ export class ClaudeEngine {
     const dpr = window.devicePixelRatio || 1;
     this.canvas.width = window.innerWidth * dpr;
     this.canvas.height = window.innerHeight * dpr;
-    this.ctx.scale(dpr, dpr);
+    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
   private initParticles(count: number) {

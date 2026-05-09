@@ -4,7 +4,7 @@ import type { StateMessage } from '../shared/types';
 const clients = new Set<ServerWebSocket>();
 let currentState: StateMessage = {
   type: 'state_change',
-  state: 'IDLE',
+  state: 'DISCONNECTED',
   timestamp: Date.now(),
   sessionId: 'default',
 };

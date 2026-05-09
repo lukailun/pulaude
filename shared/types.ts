@@ -7,7 +7,8 @@ export type ClaudeState =
   | 'WORKING'
   | 'COMPLETE'
   | 'ERROR'
-  | 'APPROVAL';
+  | 'APPROVAL'
+  | 'DISCONNECTED';
 
 export interface StateMessage {
   type: 'state_change';

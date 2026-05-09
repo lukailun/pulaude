@@ -12,6 +12,7 @@ const STATE_LABELS: Record<State, string> = {
   COMPLETE: 'Complete',
   ERROR: 'Error',
   APPROVAL: 'Awaiting Approval',
+  DISCONNECTED: 'Disconnected',
 };
 
 function App() {
