@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bun run *)",
+      "Bash(curl -s -X POST http://localhost:3847/api/state -H 'Content-Type: application/json' -d '{\"type\":\"state_change\",\"state\":\"THINKING\",\"tool\":\"\",\"timestamp\":1747000000000,\"sessionId\":\"test\"}')",
+      "Bash(curl -s -X POST http://localhost:3847/api/state -H \"Content-Type: application/json\" -d '{\"type\":\"state_change\",\"state\":\"SUBAGENT_RUNNING\",\"tool\":\"Agent\",\"timestamp\":6,\"sessionId\":\"test\"}')",
+      "Bash(curl -s -X POST http://localhost:3847/api/state -H \"Content-Type: application/json\" -d '{\"type\":\"state_change\",\"state\":\"COMPACTING_CONTEXT\",\"tool\":\"\",\"timestamp\":7,\"sessionId\":\"test\"}')",
+      "Bash(curl -s -X POST http://localhost:3847/api/state -H \"Content-Type: application/json\" -d '{\"type\":\"state_change\",\"state\":\"APPROVAL\",\"tool\":\"\",\"timestamp\":8,\"sessionId\":\"test\"}')",
+      "Bash(curl -s -X POST http://localhost:3847/api/state -H \"Content-Type: application/json\" -d '{\"type\":\"state_change\",\"state\":\"TOOL_ERROR\",\"tool\":\"\",\"timestamp\":9,\"sessionId\":\"test\"}')",
+      "Bash(curl -s -X POST http://localhost:3847/api/state -H \"Content-Type: application/json\" -d '{\"type\":\"state_change\",\"state\":\"IDLE\",\"tool\":\"\",\"timestamp\":10,\"sessionId\":\"test\"}')"
+    ]
+  }
+}

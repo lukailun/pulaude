@@ -1,14 +1,21 @@
 export type ClaudeState =
   | 'IDLE'
+  | 'INITIALIZING'
   | 'THINKING'
+  | 'COMPACTING_CONTEXT'
   | 'READING'
   | 'WRITING'
   | 'EXECUTING'
-  | 'WORKING'
-  | 'COMPLETE'
-  | 'ERROR'
   | 'APPROVAL'
-  | 'DISCONNECTED';
+  | 'WAITING_ELICITATION'
+  | 'SUBAGENT_RUNNING'
+  | 'TASK_MANAGEMENT'
+  | 'COMPLETE'
+  | 'TOOL_ERROR'
+  | 'API_ERROR'
+  | 'DISCONNECTED'
+  | 'WORKING'
+  | 'PERMISSION_DENIED';
 
 export interface StateMessage {
   type: 'state_change';

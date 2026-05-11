@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/relay.sh\" IDLE"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/relay.sh\" INITIALIZING"
           }
         ]
       }
@@ -117,7 +117,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/relay.sh\" THINKING Agent"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/relay.sh\" SUBAGENT_RUNNING Agent"
           }
         ]
       },
@@ -135,7 +135,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/relay.sh\" THINKING Skill"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/relay.sh\" SUBAGENT_RUNNING Skill"
           }
         ]
       }
@@ -190,11 +190,29 @@
     ],
     "Notification": [
       {
-        "matcher": "permission_prompt|elicitation_dialog",
+        "matcher": "permission_prompt",
         "hooks": [
           {
             "type": "command",
             "command": "bash \"$CLAUDE_PROJECT_DIR/relay.sh\" APPROVAL"
+          }
+        ]
+      },
+      {
+        "matcher": "elicitation_dialog",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/relay.sh\" WAITING_ELICITATION"
+          }
+        ]
+      },
+      {
+        "matcher": "permission_denied",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/relay.sh\" PERMISSION_DENIED"
           }
         ]
       },

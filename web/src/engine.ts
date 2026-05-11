@@ -1,14 +1,41 @@
 export type State =
   | 'IDLE'
+  | 'INITIALIZING'
   | 'THINKING'
+  | 'COMPACTING_CONTEXT'
   | 'READING'
   | 'WRITING'
   | 'EXECUTING'
-  | 'WORKING'
-  | 'COMPLETE'
-  | 'ERROR'
   | 'APPROVAL'
-  | 'DISCONNECTED';
+  | 'WAITING_ELICITATION'
+  | 'SUBAGENT_RUNNING'
+  | 'TASK_MANAGEMENT'
+  | 'COMPLETE'
+  | 'TOOL_ERROR'
+  | 'API_ERROR'
+  | 'DISCONNECTED'
+  | 'WORKING'
+  | 'PERMISSION_DENIED';
+
+const STATE_MODE: Record<State, number> = {
+  IDLE: 0,
+  INITIALIZING: 1,
+  THINKING: 2,
+  COMPACTING_CONTEXT: 3,
+  READING: 4,
+  WRITING: 5,
+  EXECUTING: 6,
+  APPROVAL: 7,
+  WAITING_ELICITATION: 8,
+  SUBAGENT_RUNNING: 9,
+  TASK_MANAGEMENT: 10,
+  COMPLETE: 11,
+  TOOL_ERROR: 12,
+  API_ERROR: 13,
+  DISCONNECTED: 14,
+  WORKING: 15,
+  PERMISSION_DENIED: 16,
+};
 
 interface ColorRGB {
   r: number;
@@ -18,6 +45,7 @@ interface ColorRGB {
 
 interface VisualConfig {
   colors: [ColorRGB, ColorRGB, ColorRGB];
+  mode: number;
   orbIntensity: number;
   flowSpeed: number;
   noiseScale: number;
@@ -35,84 +63,157 @@ function hex(hex: string): ColorRGB {
 
 const STATE_VISUALS: Record<State, VisualConfig> = {
   IDLE: {
-    colors: [hex('#1a1a4e'), hex('#2d3a8c'), hex('#0d0d3a')],
+    colors: [hex('#6B7280'), hex('#4B5563'), hex('#374151')],
+    mode: 0,
     orbIntensity: 0.3,
     flowSpeed: 0.12,
     noiseScale: 0.7,
-    brightness: 0.2,
-    particleDensity: 0.3,
+    brightness: 0.15,
+    particleDensity: 0.2,
+  },
+  INITIALIZING: {
+    colors: [hex('#3B82F6'), hex('#60A5FA'), hex('#1D4ED8')],
+    mode: 1,
+    orbIntensity: 0.6,
+    flowSpeed: 0.25,
+    noiseScale: 0.75,
+    brightness: 0.35,
+    particleDensity: 0.5,
   },
   THINKING: {
-    colors: [hex('#6c5ce7'), hex('#a29bfe'), hex('#3d2b9e')],
+    colors: [hex('#3B82F6'), hex('#60A5FA'), hex('#1E40AF')],
+    mode: 2,
     orbIntensity: 0.7,
     flowSpeed: 0.25,
     noiseScale: 0.8,
-    brightness: 0.45,
-    particleDensity: 0.7,
-  },
-  READING: {
-    colors: [hex('#00cec9'), hex('#81ecec'), hex('#007a78')],
-    orbIntensity: 0.5,
-    flowSpeed: 0.2,
-    noiseScale: 0.75,
     brightness: 0.4,
-    particleDensity: 0.5,
-  },
-  WRITING: {
-    colors: [hex('#00b894'), hex('#55efc4'), hex('#006b54')],
-    orbIntensity: 0.6,
-    flowSpeed: 0.22,
-    noiseScale: 0.75,
-    brightness: 0.42,
     particleDensity: 0.6,
   },
-  EXECUTING: {
-    colors: [hex('#fdcb6e'), hex('#ffeaa7'), hex('#c4941a')],
-    orbIntensity: 0.9,
-    flowSpeed: 0.35,
-    noiseScale: 0.85,
-    brightness: 0.55,
-    particleDensity: 0.9,
-  },
-  WORKING: {
-    colors: [hex('#a29bfe'), hex('#c8d6e5'), hex('#6c5ce7')],
-    orbIntensity: 0.4,
-    flowSpeed: 0.15,
+  COMPACTING_CONTEXT: {
+    colors: [hex('#8B5CF6'), hex('#A78BFA'), hex('#6D28D9')],
+    mode: 3,
+    orbIntensity: 0.5,
+    flowSpeed: 0.2,
     noiseScale: 0.7,
     brightness: 0.35,
     particleDensity: 0.4,
   },
+  READING: {
+    colors: [hex('#10B981'), hex('#34D399'), hex('#059669')],
+    mode: 4,
+    orbIntensity: 0.5,
+    flowSpeed: 0.2,
+    noiseScale: 0.75,
+    brightness: 0.35,
+    particleDensity: 0.5,
+  },
+  WRITING: {
+    colors: [hex('#F59E0B'), hex('#FBBF24'), hex('#D97706')],
+    mode: 5,
+    orbIntensity: 0.6,
+    flowSpeed: 0.22,
+    noiseScale: 0.75,
+    brightness: 0.38,
+    particleDensity: 0.5,
+  },
+  EXECUTING: {
+    colors: [hex('#EF4444'), hex('#F87171'), hex('#B91C1C')],
+    mode: 6,
+    orbIntensity: 0.8,
+    flowSpeed: 0.35,
+    noiseScale: 0.85,
+    brightness: 0.45,
+    particleDensity: 0.8,
+  },
+  APPROVAL: {
+    colors: [hex('#EAB308'), hex('#FDE047'), hex('#A16207')],
+    mode: 7,
+    orbIntensity: 0.4,
+    flowSpeed: 0.12,
+    noiseScale: 0.65,
+    brightness: 0.25,
+    particleDensity: 0.3,
+  },
+  WAITING_ELICITATION: {
+    colors: [hex('#06B6D4'), hex('#22D3EE'), hex('#0891B2')],
+    mode: 8,
+    orbIntensity: 0.45,
+    flowSpeed: 0.18,
+    noiseScale: 0.7,
+    brightness: 0.35,
+    particleDensity: 0.4,
+  },
+  SUBAGENT_RUNNING: {
+    colors: [hex('#6366F1'), hex('#818CF8'), hex('#4338CA')],
+    mode: 9,
+    orbIntensity: 0.6,
+    flowSpeed: 0.25,
+    noiseScale: 0.8,
+    brightness: 0.4,
+    particleDensity: 0.7,
+  },
+  TASK_MANAGEMENT: {
+    colors: [hex('#3B82F6'), hex('#60A5FA'), hex('#1D4ED8')],
+    mode: 10,
+    orbIntensity: 0.5,
+    flowSpeed: 0.18,
+    noiseScale: 0.7,
+    brightness: 0.35,
+    particleDensity: 0.5,
+  },
   COMPLETE: {
-    colors: [hex('#00b894'), hex('#55efc4'), hex('#00cec9')],
+    colors: [hex('#10B981'), hex('#34D399'), hex('#059669')],
+    mode: 11,
     orbIntensity: 0.8,
     flowSpeed: 0.3,
     noiseScale: 0.8,
     brightness: 0.5,
     particleDensity: 1.0,
   },
-  ERROR: {
-    colors: [hex('#d63031'), hex('#ff7675'), hex('#8b1a1a')],
-    orbIntensity: 1.0,
+  TOOL_ERROR: {
+    colors: [hex('#EF4444'), hex('#F87171'), hex('#991B1B')],
+    mode: 12,
+    orbIntensity: 0.9,
     flowSpeed: 0.4,
     noiseScale: 0.9,
-    brightness: 0.5,
-    particleDensity: 0.8,
+    brightness: 0.45,
+    particleDensity: 0.7,
   },
-  APPROVAL: {
-    colors: [hex('#636e72'), hex('#b2bec3'), hex('#2d3436')],
-    orbIntensity: 0.35,
-    flowSpeed: 0.1,
-    noiseScale: 0.65,
-    brightness: 0.25,
-    particleDensity: 0.3,
+  API_ERROR: {
+    colors: [hex('#DC2626'), hex('#F87171'), hex('#7F1D1D')],
+    mode: 13,
+    orbIntensity: 0.7,
+    flowSpeed: 0.3,
+    noiseScale: 0.85,
+    brightness: 0.35,
+    particleDensity: 0.5,
   },
   DISCONNECTED: {
-    colors: [hex('#2d3436'), hex('#636e72'), hex('#1a1c1e')],
-    orbIntensity: 0.15,
-    flowSpeed: 0.06,
+    colors: [hex('#6B7280'), hex('#4B5563'), hex('#1F2937')],
+    mode: 14,
+    orbIntensity: 0.1,
+    flowSpeed: 0.04,
     noiseScale: 0.6,
-    brightness: 0.12,
-    particleDensity: 0.15,
+    brightness: 0.08,
+    particleDensity: 0.1,
+  },
+  WORKING: {
+    colors: [hex('#60A5FA'), hex('#93C5FD'), hex('#2563EB')],
+    mode: 15,
+    orbIntensity: 0.45,
+    flowSpeed: 0.18,
+    noiseScale: 0.7,
+    brightness: 0.35,
+    particleDensity: 0.4,
+  },
+  PERMISSION_DENIED: {
+    colors: [hex('#EF4444'), hex('#FCA5A5'), hex('#991B1B')],
+    mode: 16,
+    orbIntensity: 0.5,
+    flowSpeed: 0.15,
+    noiseScale: 0.7,
+    brightness: 0.3,
+    particleDensity: 0.3,
   },
 };
 
@@ -129,19 +230,17 @@ precision highp float;
 
 uniform vec2 u_resolution;
 uniform float u_time;
-
-// 3 fluid color control points
 uniform vec3 u_color0;
 uniform vec3 u_color1;
 uniform vec3 u_color2;
-
+uniform float u_mode;
 uniform float u_orbIntensity;
 uniform float u_flowSpeed;
 uniform float u_noiseScale;
 uniform float u_brightness;
 uniform float u_particleDensity;
 
-// Simplex noise helpers
+// --- Noise ---
 vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
 vec2 mod289v2(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
 vec3 permute(vec3 x) { return mod289(((x * 34.0) + 1.0) * x); }
@@ -157,8 +256,7 @@ float snoise(vec2 v) {
   i = mod289v2(i);
   vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));
   vec3 m = max(0.5 - vec3(dot(x0, x0), dot(x12.xy, x12.xy), dot(x12.zw, x12.zw)), 0.0);
-  m = m * m;
-  m = m * m;
+  m = m * m; m = m * m;
   vec3 x = 2.0 * fract(p * C.www) - 1.0;
   vec3 h = abs(x) - 0.5;
   vec3 ox = floor(x + 0.5);
@@ -171,15 +269,400 @@ float snoise(vec2 v) {
 }
 
 float fbm(vec2 p) {
-  float value = 0.0;
-  float amplitude = 0.5;
-  float frequency = 1.0;
+  float v = 0.0, a = 0.5;
   for (int i = 0; i < 5; i++) {
-    value += amplitude * snoise(p * frequency);
-    frequency *= 2.0;
-    amplitude *= 0.5;
+    v += a * snoise(p);
+    p *= 2.0; a *= 0.5;
   }
-  return value;
+  return v;
+}
+
+// --- Helpers ---
+float hash(vec2 p) {
+  return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+}
+
+// --- State-specific effect functions ---
+
+// 0: IDLE - gentle breathing noise field
+vec3 effectIdle(vec2 uv, vec2 p, float t, vec3 c0, vec3 c1, vec3 c2) {
+  float flow = fbm(p * 0.6 + vec2(t * 0.08, t * 0.03));
+  flow = flow * 0.5 + 0.5;
+  vec3 col = mix(c0, c1, flow);
+  col = mix(col, c2, smoothstep(0.6, 1.0, flow));
+  // gentle orb
+  float d = length(uv - 0.5);
+  float orb = exp(-d * d * 8.0);
+  float breath = 0.5 + 0.5 * sin(t * 2.0);
+  col += c1 * orb * breath * 0.4;
+  col *= 0.15 + flow * 0.12;
+  return col;
+}
+
+// 1: INITIALIZING - spiral rays from center
+vec3 effectInit(vec2 uv, vec2 p, float t, vec3 c0, vec3 c1, vec3 c2) {
+  vec2 d = uv - 0.5;
+  float angle = atan(d.y, d.x);
+  float dist = length(d);
+  float spiral = sin(angle * 6.0 - dist * 20.0 + t * 4.0);
+  spiral = smoothstep(0.0, 0.3, spiral);
+  float ring = smoothstep(0.35, 0.3, dist) * smoothstep(0.0, 0.1, dist);
+  vec3 col = mix(c0, c1, spiral) * ring;
+  // rotating beam
+  float beam = sin(angle * 3.0 + t * 5.0);
+  beam = smoothstep(0.7, 1.0, beam) * smoothstep(0.3, 0.0, dist);
+  col += c2 * beam * 0.6;
+  // noise background
+  float n = fbm(p * 0.8 + t * 0.2) * 0.5 + 0.5;
+  col += c0 * n * 0.08;
+  return col;
+}
+
+// 2: THINKING - expanding concentric ripples
+vec3 effectThinking(vec2 uv, vec2 p, float t, vec3 c0, vec3 c1, vec3 c2) {
+  float d = length(uv - 0.5);
+  float ripple = sin(d * 30.0 - t * 5.0) * 0.5 + 0.5;
+  ripple *= exp(-d * 3.0);
+  float ripple2 = sin(d * 20.0 - t * 3.5 + 1.5) * 0.5 + 0.5;
+  ripple2 *= exp(-d * 2.5);
+  vec3 col = c0 * ripple + c1 * ripple2 * 0.7;
+  // central glow pulsing
+  float glow = exp(-d * d * 12.0);
+  float pulse = 0.6 + 0.4 * sin(t * 4.0);
+  col += c2 * glow * pulse;
+  // noise
+  float n = fbm(p * 1.0 + t * 0.15) * 0.5 + 0.5;
+  col += c0 * n * 0.06;
+  return col;
+}
+
+// 3: COMPACTING - concentric rings collapsing inward
+vec3 effectCompacting(vec2 uv, vec2 p, float t, vec3 c0, vec3 c1, vec3 c2) {
+  float d = length(uv - 0.5);
+  // rings that move inward
+  float ring1 = abs(d - fract(t * 0.4) * 0.5);
+  ring1 = smoothstep(0.02, 0.0, ring1);
+  float ring2 = abs(d - fract(t * 0.4 + 0.33) * 0.5);
+  ring2 = smoothstep(0.02, 0.0, ring2);
+  float ring3 = abs(d - fract(t * 0.4 + 0.66) * 0.5);
+  ring3 = smoothstep(0.02, 0.0, ring3);
+  vec3 col = c0 * ring1 + c1 * ring2 + c2 * ring3;
+  // central compressing glow
+  float center = exp(-d * d * 20.0);
+  float breathe = 0.5 + 0.5 * sin(t * 3.0);
+  col += c2 * center * breathe * 0.5;
+  // background noise that shrinks
+  float n = fbm(p * (0.5 + d * 2.0) + t * 0.1) * 0.5 + 0.5;
+  col += c0 * n * 0.06;
+  return col;
+}
+
+// 4: READING - horizontal scan lines sweeping down
+vec3 effectReading(vec2 uv, vec2 p, float t, vec3 c0, vec3 c1, vec3 c2) {
+  float scan = fract(t * 0.5);
+  float scanLine = smoothstep(0.0, 0.01, abs(uv.y - scan));
+  scanLine = 1.0 - (1.0 - scanLine) * 0.8;
+  // text-like horizontal bars
+  float barY = floor(uv.y * 30.0);
+  float bar = step(0.3, fract(barY * 0.37 + 0.1));
+  bar *= step(0.15, fract(uv.x * 2.0 + barY * 0.13));
+  // illuminated region near scan line
+  float illuminate = exp(-pow(uv.y - scan, 2.0) * 80.0);
+  vec3 col = c0 * bar * 0.15;
+  col += c1 * bar * illuminate * 0.5;
+  col += c2 * illuminate * 0.15;
+  // scan line glow
+  float line = smoothstep(0.008, 0.0, abs(uv.y - scan));
+  col += c1 * line * 0.6;
+  // noise
+  float n = fbm(p * 0.8 + t * 0.1) * 0.5 + 0.5;
+  col += c0 * n * 0.04;
+  return col;
+}
+
+// 5: WRITING - vertical cursor blinking with ink spread
+vec3 effectWriting(vec2 uv, vec2 p, float t, vec3 c0, vec3 c1, vec3 c2) {
+  // cursor position moves right slowly
+  float cursorX = fract(t * 0.08);
+  // blinking cursor bar
+  float blink = step(0.5, fract(t * 1.0));
+  float cursor = smoothstep(0.008, 0.0, abs(uv.x - cursorX)) * blink;
+  // "typed text" bars to the left of cursor
+  float textMask = step(uv.x, cursorX - 0.02);
+  float barY = floor(uv.y * 25.0);
+  float textBar = step(0.25, fract(barY * 0.41 + 0.05));
+  textBar *= step(0.1, fract(uv.x * 15.0 + barY * 0.17));
+  textBar *= textMask;
+  // ink diffusion near cursor
+  float inkDist = abs(uv.x - cursorX);
+  float ink = exp(-inkDist * 40.0) * (1.0 - blink * 0.5);
+  vec3 col = c0 * textBar * 0.2;
+  col += c1 * cursor;
+  col += c2 * ink * 0.3;
+  // noise
+  float n = fbm(p * 0.7 + t * 0.08) * 0.5 + 0.5;
+  col += c0 * n * 0.04;
+  return col;
+}
+
+// 6: EXECUTING - rotating gear teeth pattern
+vec3 effectExecuting(vec2 uv, vec2 p, float t, vec3 c0, vec3 c1, vec3 c2) {
+  vec2 d = uv - 0.5;
+  float angle = atan(d.y, d.x);
+  float dist = length(d);
+  // gear teeth
+  float teeth = sin(angle * 12.0 + t * 6.0);
+  float gearRing = smoothstep(0.22, 0.2, dist) * smoothstep(0.12, 0.14, dist);
+  float teethMask = gearRing * smoothstep(0.0, 0.4, teeth);
+  // inner rotating pattern
+  float inner = sin(angle * 4.0 - t * 8.0);
+  inner = smoothstep(0.3, 0.8, inner) * smoothstep(0.12, 0.0, dist);
+  // energy rings
+  float pulse = sin(t * 10.0) * 0.5 + 0.5;
+  float energy = smoothstep(0.25, 0.23, dist) * pulse;
+  vec3 col = c0 * teethMask * 0.7;
+  col += c1 * inner * 0.5;
+  col += c2 * energy * 0.3;
+  // sparks
+  float spark = snoise(p * 20.0 + t * 3.0);
+  spark = smoothstep(0.7, 1.0, spark);
+  col += c1 * spark * 0.3;
+  // background
+  float n = fbm(p * 0.8 + t * 0.3) * 0.5 + 0.5;
+  col += c0 * n * 0.08;
+  return col;
+}
+
+// 7: APPROVAL - warning pulse with caution stripes
+vec3 effectApproval(vec2 uv, vec2 p, float t, vec3 c0, vec3 c1, vec3 c2) {
+  // caution diagonal stripes
+  float stripe = sin((uv.x + uv.y) * 40.0 + t * 2.0);
+  stripe = smoothstep(0.3, 0.5, stripe);
+  // pulsing warning glow
+  float d = length(uv - 0.5);
+  float glow = exp(-d * d * 6.0);
+  float pulse = 0.5 + 0.5 * sin(t * 3.0);
+  // exclamation-shaped bright region at center
+  float excl = smoothstep(0.04, 0.02, abs(uv.x - 0.5));
+  excl *= step(0.42, uv.y) * step(uv.y, 0.52);
+  float dot_ = smoothstep(0.04, 0.02, length(uv - vec2(0.5, 0.38)));
+  float warning = max(excl, dot_);
+  vec3 col = c0 * stripe * 0.15;
+  col += c1 * glow * pulse * 0.4;
+  col += c2 * warning * pulse * 0.8;
+  float n = fbm(p * 0.7 + t * 0.1) * 0.5 + 0.5;
+  col += c0 * n * 0.05;
+  return col;
+}
+
+// 8: WAITING_ELICITATION - bouncing wave / input prompt
+vec3 effectWaiting(vec2 uv, vec2 p, float t, vec3 c0, vec3 c1, vec3 c2) {
+  // bouncing wave pattern
+  float wave = sin(uv.x * 15.0 + t * 4.0) * 0.03;
+  float bounce = sin(t * 3.0) * 0.02;
+  float bar = smoothstep(0.008, 0.0, abs(uv.y - 0.5 - wave - bounce));
+  // input cursor blinking at center
+  float cursor = smoothstep(0.005, 0.0, abs(uv.x - 0.5));
+  cursor *= smoothstep(0.04, 0.0, abs(uv.y - 0.5 - bounce));
+  cursor *= step(0.5, fract(t * 1.2));
+  // gentle ripple from center
+  float d = length(uv - 0.5);
+  float ripple = sin(d * 25.0 - t * 5.0) * exp(-d * 4.0);
+  ripple = smoothstep(0.0, 0.3, ripple);
+  vec3 col = c0 * bar * 0.4;
+  col += c1 * cursor;
+  col += c2 * ripple * 0.3;
+  float n = fbm(p * 0.7 + t * 0.12) * 0.5 + 0.5;
+  col += c0 * n * 0.06;
+  return col;
+}
+
+// 9: SUBAGENT_RUNNING - multiple orbiting particles
+vec3 effectSubagent(vec2 uv, vec2 p, float t, vec3 c0, vec3 c1, vec3 c2) {
+  vec3 col = vec3(0.0);
+  // central core
+  float d = length(uv - 0.5);
+  float core = exp(-d * d * 25.0);
+  col += c0 * core * 0.6;
+  // 4 orbiting particles
+  for (int i = 0; i < 4; i++) {
+    float fi = float(i);
+    float angle = t * (2.0 + fi * 0.3) + fi * 1.5708;
+    float radius = 0.15 + fi * 0.03;
+    vec2 pos = 0.5 + vec2(cos(angle), sin(angle)) * radius;
+    float pd = length(uv - pos);
+    float particle = exp(-pd * pd * 300.0);
+    float trail = exp(-pd * pd * 40.0);
+    col += c1 * particle * 0.8;
+    col += c2 * trail * 0.2;
+  }
+  // connecting lines (approximate with thin glow)
+  float ring = abs(d - 0.18);
+  float orbitLine = smoothstep(0.005, 0.002, ring);
+  col += c0 * orbitLine * 0.15;
+  // noise
+  float n = fbm(p * 0.9 + t * 0.2) * 0.5 + 0.5;
+  col += c0 * n * 0.05;
+  return col;
+}
+
+// 10: TASK_MANAGEMENT - grid pattern with checkmarks
+vec3 effectTask(vec2 uv, vec2 p, float t, vec3 c0, vec3 c1, vec3 c2) {
+  // grid lines
+  float gx = smoothstep(0.003, 0.0, abs(fract(uv.x * 8.0) - 0.5) - 0.48);
+  float gy = smoothstep(0.003, 0.0, abs(fract(uv.y * 8.0) - 0.5) - 0.48);
+  float grid = max(gx, gy) * 0.1;
+  // animated checkmark pattern
+  float cellX = fract(uv.x * 8.0);
+  float cellY = fract(uv.y * 8.0);
+  float check = 0.0;
+  // diagonal line (part of checkmark)
+  float d1 = abs(cellX - cellY);
+  check += smoothstep(0.06, 0.02, d1) * step(cellX, 0.6) * step(cellY, 0.5);
+  // other arm of checkmark
+  float d2 = abs((1.0 - cellX) * 0.5 - cellY);
+  check += smoothstep(0.06, 0.02, d2) * step(0.4, cellX) * step(cellY, 0.5);
+  // animate appearance based on grid position
+  float cellId = floor(uv.x * 8.0) + floor(uv.y * 8.0) * 8.0;
+  float appear = step(cellId * 0.1, fract(t * 0.3));
+  check *= appear;
+  vec3 col = c0 * grid + c1 * check * 0.4;
+  float n = fbm(p * 0.7 + t * 0.08) * 0.5 + 0.5;
+  col += c0 * n * 0.04;
+  return col;
+}
+
+// 11: COMPLETE - burst / success explosion
+vec3 effectComplete(vec2 uv, vec2 p, float t, vec3 c0, vec3 c1, vec3 c2) {
+  float d = length(uv - 0.5);
+  // burst ring expanding outward
+  float burst = abs(d - fract(t * 0.6) * 0.7);
+  burst = smoothstep(0.03, 0.0, burst);
+  // checkmark shape at center
+  vec2 dc = uv - 0.5;
+  float check1 = abs(dc.x * 1.0 - dc.y * 0.5);
+  float checkArm1 = smoothstep(0.04, 0.01, check1) * step(dc.x, 0.02) * step(-0.02, dc.y);
+  float check2 = abs((dc.x - 0.04) * 0.4 - dc.y);
+  float checkArm2 = smoothstep(0.04, 0.01, check2) * step(0.0, dc.x) * step(dc.y, 0.04);
+  float check = max(checkArm1, checkArm2);
+  check *= smoothstep(0.0, 0.3, fract(t * 0.5));
+  // sparkle particles
+  float sparkle = snoise(p * 30.0 + t * 2.0);
+  sparkle = smoothstep(0.65, 1.0, sparkle) * smoothstep(0.3, 0.8, fract(t * 0.4));
+  // central glow
+  float glow = exp(-d * d * 10.0);
+  vec3 col = c0 * burst * 0.6;
+  col += c1 * check * 0.8;
+  col += c1 * sparkle * 0.4;
+  col += c2 * glow * 0.5;
+  return col;
+}
+
+// 12: TOOL_ERROR - screen shake effect, red ripples
+vec3 effectToolError(vec2 uv, vec2 p, float t, vec3 c0, vec3 c1, vec3 c2) {
+  // shake offset
+  float shake = sin(t * 40.0) * 0.005 * exp(-fract(t * 0.5) * 3.0);
+  vec2 suv = uv + vec2(shake, shake * 0.7);
+  float d = length(suv - 0.5);
+  // X pattern
+  float x1 = abs(suv.x - suv.y);
+  float x2 = abs(suv.x + suv.y - 1.0);
+  float xMark = smoothstep(0.04, 0.01, x1) + smoothstep(0.04, 0.01, x2);
+  xMark = min(xMark, 1.0) * smoothstep(0.3, 0.15, d);
+  // error ripples
+  float ripple = sin(d * 20.0 - t * 8.0) * exp(-d * 3.0);
+  ripple = smoothstep(0.0, 0.4, ripple);
+  // red flash
+  float flash = exp(-fract(t * 0.5) * 5.0) * 0.3;
+  vec3 col = c0 * xMark * 0.6;
+  col += c1 * ripple * 0.3;
+  col += c2 * flash;
+  float n = fbm(p * 1.0 + t * 0.3) * 0.5 + 0.5;
+  col += c0 * n * 0.06;
+  return col;
+}
+
+// 13: API_ERROR - broken/glitchy fragments
+vec3 effectApiError(vec2 uv, vec2 p, float t, vec3 c0, vec3 c1, vec3 c2) {
+  // glitch blocks
+  float blockY = floor(uv.y * 12.0);
+  float glitch = hash(vec2(blockY, floor(t * 8.0)));
+  float shift = step(0.7, glitch) * (hash(vec2(blockY + 1.0, floor(t * 8.0))) - 0.5) * 0.1;
+  vec2 guv = uv;
+  guv.x += shift;
+  // broken line through center
+  float line = smoothstep(0.01, 0.0, abs(guv.y - 0.5));
+  line *= step(0.2, guv.x) * step(guv.x, 0.8);
+  // fragments floating apart
+  float frag = step(0.5, fract(guv.y * 6.0 + t * 0.5));
+  float fragGlow = smoothstep(0.02, 0.0, abs(fract(guv.y * 6.0) - 0.5) - 0.48);
+  // connection dots
+  float d = length(guv - 0.5);
+  float pulse = 0.5 + 0.5 * sin(t * 2.0);
+  vec3 col = c0 * line * 0.5;
+  col += c1 * fragGlow * 0.3;
+  col += c2 * pulse * exp(-d * d * 8.0) * 0.3;
+  // static noise
+  float noise = hash(uv * 100.0 + t * 20.0) * 0.1;
+  col += vec3(noise) * 0.5;
+  return col;
+}
+
+// 14: DISCONNECTED - everything fading out
+vec3 effectDisconnected(vec2 uv, vec2 p, float t, vec3 c0, vec3 c1, vec3 c2) {
+  float d = length(uv - 0.5);
+  // fading noise
+  float n = fbm(p * 0.5 + t * 0.02) * 0.5 + 0.5;
+  vec3 col = c0 * n * 0.06;
+  // faint power-off symbol
+  float ring = abs(d - 0.12);
+  float powerRing = smoothstep(0.008, 0.002, ring) * step(d, 0.14);
+  float line_ = smoothstep(0.006, 0.001, abs(uv.x - 0.5));
+  line_ *= step(0.5, uv.y) * step(uv.y, 0.5 + 0.12);
+  float power = max(powerRing, line_);
+  col += c1 * power * 0.15;
+  // static fading
+  float static_ = hash(uv * 80.0 + floor(t * 2.0)) * 0.02;
+  col += vec3(static_);
+  return col;
+}
+
+// 15: WORKING - generic flowing animation
+vec3 effectWorking(vec2 uv, vec2 p, float t, vec3 c0, vec3 c1, vec3 c2) {
+  float flow = fbm(p * 0.8 + vec2(t * 0.15, t * 0.08));
+  flow = flow * 0.5 + 0.5;
+  vec3 col = mix(c0, c1, flow);
+  // gentle orb
+  float d = length(uv - 0.5);
+  float orb = exp(-d * d * 10.0);
+  float pulse = 0.5 + 0.5 * sin(t * 2.5);
+  col += c2 * orb * pulse * 0.3;
+  col *= 0.12 + flow * 0.1;
+  return col;
+}
+
+// 16: PERMISSION_DENIED - blocked / red X overlay
+vec3 effectDenied(vec2 uv, vec2 p, float t, vec3 c0, vec3 c1, vec3 c2) {
+  float d = length(uv - 0.5);
+  // prohibited circle
+  float ring = abs(d - 0.15);
+  float circle = smoothstep(0.008, 0.002, ring);
+  // diagonal slash
+  float slash = abs(uv.x - uv.y);
+  float slashLine = smoothstep(0.015, 0.005, abs(slash)) * step(0.35, uv.x) * step(uv.x, 0.65);
+  float symbol = max(circle, slashLine);
+  // pulsing
+  float pulse = 0.4 + 0.6 * sin(t * 2.5);
+  // red vignette
+  float vig = smoothstep(0.5, 0.2, d);
+  vec3 col = c0 * symbol * pulse * 0.5;
+  col += c2 * vig * 0.08;
+  // warning stripes
+  float stripe = sin((uv.x + uv.y) * 30.0) * 0.5 + 0.5;
+  col += c0 * stripe * 0.02 * vig;
+  float n = fbm(p * 0.6 + t * 0.05) * 0.5 + 0.5;
+  col += c0 * n * 0.04;
+  return col;
 }
 
 void main() {
@@ -189,53 +672,70 @@ void main() {
   p.x *= aspect;
 
   float t = u_time * u_flowSpeed;
+  float mode = u_mode;
 
-  // Flowing noise field for color region selection
-  float flow = fbm(p * u_noiseScale * 0.7 + vec2(t * 0.4, t * 0.15));
-  flow = flow * 0.5 + 0.5;
+  // Compute two modes and blend for smooth transitions
+  int m0 = int(floor(mode));
+  int m1 = int(ceil(mode));
+  float blend = fract(mode);
 
-  // Secondary noise for organic distortion
-  float warp = fbm(p * u_noiseScale * 1.2 + vec2(-t * 0.25, t * 0.3) + 4.0);
-  flow = flow + warp * 0.15;
-  flow = clamp(flow, 0.0, 1.0);
+  vec3 c0 = u_color0;
+  vec3 c1 = u_color1;
+  vec3 c2 = u_color2;
 
-  // Three soft color bands with distinct regions
-  float w0 = smoothstep(0.0, 0.45, flow) * (1.0 - smoothstep(0.55, 1.0, flow));
-  float w1 = smoothstep(0.25, 0.6, flow) * (1.0 - smoothstep(0.75, 1.0, flow));
-  float w2 = smoothstep(0.5, 0.85, flow) * (1.0 - smoothstep(0.0, 0.15, flow));
+  vec3 colA = vec3(0.0);
+  vec3 colB = vec3(0.0);
 
-  // Normalize weights so one color dominates per region
-  float totalW = w0 + w1 + w2 + 0.001;
-  vec3 fluidColor = (u_color0 * w0 + u_color1 * w1 + u_color2 * w2) / totalW;
+  // Mode 0
+  if (m0 == 0) colA = effectIdle(uv, p, t, c0, c1, c2);
+  else if (m0 == 1) colA = effectInit(uv, p, t, c0, c1, c2);
+  else if (m0 == 2) colA = effectThinking(uv, p, t, c0, c1, c2);
+  else if (m0 == 3) colA = effectCompacting(uv, p, t, c0, c1, c2);
+  else if (m0 == 4) colA = effectReading(uv, p, t, c0, c1, c2);
+  else if (m0 == 5) colA = effectWriting(uv, p, t, c0, c1, c2);
+  else if (m0 == 6) colA = effectExecuting(uv, p, t, c0, c1, c2);
+  else if (m0 == 7) colA = effectApproval(uv, p, t, c0, c1, c2);
+  else if (m0 == 8) colA = effectWaiting(uv, p, t, c0, c1, c2);
+  else if (m0 == 9) colA = effectSubagent(uv, p, t, c0, c1, c2);
+  else if (m0 == 10) colA = effectTask(uv, p, t, c0, c1, c2);
+  else if (m0 == 11) colA = effectComplete(uv, p, t, c0, c1, c2);
+  else if (m0 == 12) colA = effectToolError(uv, p, t, c0, c1, c2);
+  else if (m0 == 13) colA = effectApiError(uv, p, t, c0, c1, c2);
+  else if (m0 == 14) colA = effectDisconnected(uv, p, t, c0, c1, c2);
+  else if (m0 == 15) colA = effectWorking(uv, p, t, c0, c1, c2);
+  else if (m0 == 16) colA = effectDenied(uv, p, t, c0, c1, c2);
 
-  // Brightness variation based on flow
-  fluidColor *= u_brightness + flow * 0.25;
+  // Mode 1
+  if (m1 == m0) {
+    colB = colA;
+  } else if (m1 == 0) colB = effectIdle(uv, p, t, c0, c1, c2);
+  else if (m1 == 1) colB = effectInit(uv, p, t, c0, c1, c2);
+  else if (m1 == 2) colB = effectThinking(uv, p, t, c0, c1, c2);
+  else if (m1 == 3) colB = effectCompacting(uv, p, t, c0, c1, c2);
+  else if (m1 == 4) colB = effectReading(uv, p, t, c0, c1, c2);
+  else if (m1 == 5) colB = effectWriting(uv, p, t, c0, c1, c2);
+  else if (m1 == 6) colB = effectExecuting(uv, p, t, c0, c1, c2);
+  else if (m1 == 7) colB = effectApproval(uv, p, t, c0, c1, c2);
+  else if (m1 == 8) colB = effectWaiting(uv, p, t, c0, c1, c2);
+  else if (m1 == 9) colB = effectSubagent(uv, p, t, c0, c1, c2);
+  else if (m1 == 10) colB = effectTask(uv, p, t, c0, c1, c2);
+  else if (m1 == 11) colB = effectComplete(uv, p, t, c0, c1, c2);
+  else if (m1 == 12) colB = effectToolError(uv, p, t, c0, c1, c2);
+  else if (m1 == 13) colB = effectApiError(uv, p, t, c0, c1, c2);
+  else if (m1 == 14) colB = effectDisconnected(uv, p, t, c0, c1, c2);
+  else if (m1 == 15) colB = effectWorking(uv, p, t, c0, c1, c2);
+  else if (m1 == 16) colB = effectDenied(uv, p, t, c0, c1, c2);
 
-  // Central orb glow
-  vec2 center = vec2(0.5 * aspect, 0.5);
-  float dist = length(p - center);
-  float orbRadius = 0.25 + 0.03 * sin(u_time * 0.8);
-  float orb = exp(-dist * dist / (orbRadius * orbRadius));
-  float orbGlow = exp(-dist * dist / (orbRadius * orbRadius * 4.0));
-
-  // Orb color: bright version of the primary state color
-  vec3 orbColor = u_color0 * 1.5 + vec3(0.3);
-  fluidColor += orbColor * orb * u_orbIntensity;
-  fluidColor += orbColor * orbGlow * u_orbIntensity * 0.3;
-
-  // Sparkle / particle effect
-  float sparkle = snoise(p * 40.0 + u_time * 2.0);
-  sparkle = smoothstep(0.6, 1.0, sparkle) * u_particleDensity;
-  fluidColor += vec3(sparkle * 0.3);
+  vec3 col = mix(colA, colB, blend);
 
   // Vignette
-  float vignette = 1.0 - smoothstep(0.3, 1.2, length(uv - 0.5) * 1.4);
-  fluidColor *= vignette;
+  float vignette = 1.0 - smoothstep(0.3, 1.3, length(uv - 0.5) * 1.4);
+  col *= vignette;
 
-  // Tone mapping (simple Reinhard)
-  fluidColor = fluidColor / (fluidColor + vec3(1.0));
+  // Tone mapping (Reinhard)
+  col = col / (col + vec3(1.0));
 
-  gl_FragColor = vec4(fluidColor, 1.0);
+  gl_FragColor = vec4(col, 1.0);
 }`;
 
 // --- Helpers ---
@@ -281,6 +781,8 @@ export class ClaudeEngine {
   private uniforms: Record<string, WebGLUniformLocation> = {};
   private currentConfig: VisualConfig;
   private targetConfig: VisualConfig;
+  private currentMode = 0;
+  private targetMode = 0;
   private time = 0;
   private animFrame = 0;
   private startTime: number;
@@ -290,13 +792,11 @@ export class ClaudeEngine {
     if (!gl) throw new Error('WebGL not supported');
     this.gl = gl;
 
-    // Compile shaders
     const vert = createShader(gl, gl.VERTEX_SHADER, VERT_SRC);
     const frag = createShader(gl, gl.FRAGMENT_SHADER, FRAG_SRC);
     this.program = createProgram(gl, vert, frag);
     gl.useProgram(this.program);
 
-    // Fullscreen quad
     const buf = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, buf);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), gl.STATIC_DRAW);
@@ -304,9 +804,8 @@ export class ClaudeEngine {
     gl.enableVertexAttribArray(aPos);
     gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
 
-    // Cache uniform locations
     const names = [
-      'u_resolution', 'u_time',
+      'u_resolution', 'u_time', 'u_mode',
       'u_color0', 'u_color1', 'u_color2',
       'u_orbIntensity', 'u_flowSpeed', 'u_noiseScale',
       'u_brightness', 'u_particleDensity',
@@ -335,13 +834,13 @@ export class ClaudeEngine {
 
   transitionTo(state: State) {
     this.targetConfig = { ...STATE_VISUALS[state], colors: [...STATE_VISUALS[state].colors] };
+    this.targetMode = STATE_MODE[state];
   }
 
   private update(dt: number) {
     this.time += dt;
-    const t = 0.015;
+    const t = 0.02;
 
-    // Smooth color transitions
     for (let i = 0; i < 3; i++) {
       this.currentConfig.colors[i] = lerpColor(this.currentConfig.colors[i], this.targetConfig.colors[i], t);
     }
@@ -350,6 +849,7 @@ export class ClaudeEngine {
     this.currentConfig.noiseScale = lerp(this.currentConfig.noiseScale, this.targetConfig.noiseScale, t);
     this.currentConfig.brightness = lerp(this.currentConfig.brightness, this.targetConfig.brightness, t);
     this.currentConfig.particleDensity = lerp(this.currentConfig.particleDensity, this.targetConfig.particleDensity, t);
+    this.currentMode = lerp(this.currentMode, this.targetMode, t);
   }
 
   private render() {
@@ -359,6 +859,7 @@ export class ClaudeEngine {
 
     gl.uniform2f(uniforms.u_resolution, w, h);
     gl.uniform1f(uniforms.u_time, performance.now() / 1000 - this.startTime);
+    gl.uniform1f(uniforms.u_mode, this.currentMode);
 
     gl.uniform3f(uniforms.u_color0, c.colors[0].r, c.colors[0].g, c.colors[0].b);
     gl.uniform3f(uniforms.u_color1, c.colors[1].r, c.colors[1].g, c.colors[1].b);
