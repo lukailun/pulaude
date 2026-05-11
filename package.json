@@ -7,7 +7,8 @@
     "dev:server": "bun run server/index.ts",
     "dev:web": "cd web && bun run dev",
     "build": "cd web && bun run build",
-    "start": "NODE_ENV=production bun run server/index.ts"
+    "start": "NODE_ENV=production bun run server/index.ts",
+    "install:hooks": "bun run scripts/install-hooks.ts"
   },
   "type": "module",
   "private": true,

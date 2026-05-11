@@ -9,13 +9,13 @@ Pulaude hooks into Claude Code's lifecycle events and renders an animated pulsin
 ## Architecture
 
 ```
-Claude Code  →  hook/relay.sh  →  Bun server  →  WebSocket  →  Browser (Canvas)
+Claude Code  →  relay.sh  →  Bun server  →  WebSocket  →  Browser (Canvas)
 (lifecycle)     (curl POST)       (port 3847)                   (particle engine)
 ```
 
 Three layers:
 
-- **Hook** -- A bash script (`hook/relay.sh`) that captures Claude Code lifecycle events via `.claude/settings.json` and POSTs state changes to the server.
+- **Hook** -- A bash script (`relay.sh`) that captures Claude Code lifecycle events via `hooks.json` and POSTs state changes to the server.
 - **Server** -- A `Bun.serve()` HTTP + WebSocket server (`server/index.ts`) that receives state updates and broadcasts them to all connected clients.
 - **Web** -- A React 19 frontend (`web/`) with a custom HTML5 Canvas 2D particle engine that renders the animated orb.
 
@@ -79,8 +79,8 @@ The app will be served at http://localhost:3847.
 
 ```
 pulaude/
-  .claude/settings.json   # Claude Code hook definitions
-  hook/relay.sh            # Bash relay script
+  hooks.json               # Hook definitions (install source)
+  relay.sh                 # Bash relay script
   shared/types.ts          # Shared TypeScript types
   server/index.ts          # Bun HTTP + WebSocket server
   web/
@@ -93,6 +93,21 @@ pulaude/
     index.html             # Vite entry HTML
     vite.config.ts         # Vite config with dev proxy
 ```
+
+## Install Hooks (Global)
+
+To make Pulaude track **all** Claude Code sessions (not just this project), install the hooks into your user-level settings.
+
+```sh
+bun install
+bun run install:hooks
+```
+
+The script will:
+1. Copy `hook/relay.sh` to `~/.claude/pulaude/`
+2. Merge hooks into `~/.claude/settings.json` (preserves existing config)
+
+Or manually: open `~/.claude/settings.json`, add the `"hooks"` key from `hooks.json`, replacing all `$CLAUDE_PROJECT_DIR/hook` with `~/.claude/pulaude`.
 
 ## Configuration
 

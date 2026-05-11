@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/hook/relay.sh\" IDLE"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/relay.sh\" IDLE"
           }
         ]
       }
@@ -15,7 +15,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/hook/relay.sh\" THINKING"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/relay.sh\" THINKING"
           }
         ]
       }
@@ -25,7 +25,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/hook/relay.sh\" COMPLETE"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/relay.sh\" COMPLETE"
           }
         ]
       }
@@ -36,7 +36,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/hook/relay.sh\" EXECUTING Bash"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/relay.sh\" EXECUTING Bash"
           }
         ]
       },
@@ -45,7 +45,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/hook/relay.sh\" READING Read"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/relay.sh\" READING Read"
           }
         ]
       },
@@ -54,7 +54,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/hook/relay.sh\" WRITING Write"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/relay.sh\" WRITING Write"
           }
         ]
       },
@@ -63,7 +63,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/hook/relay.sh\" WRITING Edit"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/relay.sh\" WRITING Edit"
           }
         ]
       },
@@ -72,7 +72,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/hook/relay.sh\" WRITING MultiEdit"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/relay.sh\" WRITING MultiEdit"
           }
         ]
       },
@@ -81,7 +81,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/hook/relay.sh\" READING Glob"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/relay.sh\" READING Glob"
           }
         ]
       },
@@ -90,7 +90,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/hook/relay.sh\" READING Grep"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/relay.sh\" READING Grep"
           }
         ]
       },
@@ -99,7 +99,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/hook/relay.sh\" READING WebFetch"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/relay.sh\" READING WebFetch"
           }
         ]
       },
@@ -108,7 +108,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/hook/relay.sh\" READING WebSearch"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/relay.sh\" READING WebSearch"
           }
         ]
       },
@@ -117,7 +117,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/hook/relay.sh\" THINKING Agent"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/relay.sh\" THINKING Agent"
           }
         ]
       },
@@ -126,7 +126,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/hook/relay.sh\" WRITING NotebookEdit"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/relay.sh\" WRITING NotebookEdit"
           }
         ]
       },
@@ -135,7 +135,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/hook/relay.sh\" THINKING Skill"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/relay.sh\" THINKING Skill"
           }
         ]
       }
@@ -146,7 +146,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/hook/relay.sh\" THINKING"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/relay.sh\" THINKING"
           }
         ]
       },
@@ -155,7 +155,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/hook/relay.sh\" THINKING"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/relay.sh\" THINKING"
           }
         ]
       },
@@ -164,7 +164,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/hook/relay.sh\" THINKING"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/relay.sh\" THINKING"
           }
         ]
       },
@@ -173,7 +173,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/hook/relay.sh\" THINKING"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/relay.sh\" THINKING"
           }
         ]
       }
@@ -183,7 +183,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/hook/relay.sh\" APPROVAL"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/relay.sh\" APPROVAL"
           }
         ]
       }
@@ -194,7 +194,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/hook/relay.sh\" APPROVAL"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/relay.sh\" APPROVAL"
           }
         ]
       },
@@ -203,7 +203,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/hook/relay.sh\" IDLE"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/relay.sh\" IDLE"
           }
         ]
       }
@@ -213,7 +213,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/hook/relay.sh\" DISCONNECTED"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/relay.sh\" DISCONNECTED"
           }
         ]
       }
