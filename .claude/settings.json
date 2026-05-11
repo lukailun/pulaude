@@ -135,50 +135,41 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/hook/relay.sh\" WORKING Skill"
-          }
-        ]
-      },
-      {
-        "matcher": "EnterPlanMode",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/hook/relay.sh\" THINKING"
-          }
-        ]
-      },
-      {
-        "matcher": "AskUserQuestion",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/hook/relay.sh\" APPROVAL"
-          }
-        ]
-      },
-      {
-        "matcher": "ExitPlanMode",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/hook/relay.sh\" THINKING"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/hook/relay.sh\" THINKING Skill"
           }
         ]
       }
     ],
     "PostToolUse": [
       {
-        "matcher": "AskUserQuestion",
+        "matcher": "Read|Glob|Grep|WebFetch|WebSearch",
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/hook/relay.sh\" APPROVAL"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/hook/relay.sh\" THINKING"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/hook/relay.sh\" THINKING"
           }
         ]
       },
       {
         "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/hook/relay.sh\" THINKING"
+          }
+        ]
+      },
+      {
+        "matcher": "Agent|Skill",
         "hooks": [
           {
             "type": "command",
