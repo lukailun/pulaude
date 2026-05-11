@@ -57,13 +57,15 @@ function App() {
   return (
     <>
       <canvas ref={canvasRef} />
-      <div className="status">
-        <div className="state-name">{STATE_LABELS[state]}</div>
-        {tool && <div className="tool-name">{tool}</div>}
-      </div>
-      <div className="connection">
-        <span className={`dot ${connected ? 'connected' : ''}`} />
-        {connected ? 'Connected' : 'Disconnected'}
+      <div className="overlay">
+        <div className="status">
+          <div className="state-name">{STATE_LABELS[state]}</div>
+          {tool && <div className="tool-name">{tool}</div>}
+        </div>
+        <div className="connection">
+          <span className={`dot ${connected ? 'connected' : ''}`} />
+          {connected ? 'Connected' : 'Disconnected'}
+        </div>
       </div>
     </>
   );

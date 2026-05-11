@@ -37,81 +37,81 @@ const STATE_VISUALS: Record<State, VisualConfig> = {
   IDLE: {
     colors: [hex('#1a1a4e'), hex('#2d3a8c'), hex('#0d0d3a')],
     orbIntensity: 0.3,
-    flowSpeed: 0.15,
-    noiseScale: 1.2,
-    brightness: 0.15,
+    flowSpeed: 0.12,
+    noiseScale: 0.7,
+    brightness: 0.2,
     particleDensity: 0.3,
   },
   THINKING: {
     colors: [hex('#6c5ce7'), hex('#a29bfe'), hex('#3d2b9e')],
     orbIntensity: 0.7,
-    flowSpeed: 0.35,
-    noiseScale: 1.5,
-    brightness: 0.3,
+    flowSpeed: 0.25,
+    noiseScale: 0.8,
+    brightness: 0.45,
     particleDensity: 0.7,
   },
   READING: {
     colors: [hex('#00cec9'), hex('#81ecec'), hex('#007a78')],
     orbIntensity: 0.5,
-    flowSpeed: 0.25,
-    noiseScale: 1.3,
-    brightness: 0.25,
+    flowSpeed: 0.2,
+    noiseScale: 0.75,
+    brightness: 0.4,
     particleDensity: 0.5,
   },
   WRITING: {
     colors: [hex('#00b894'), hex('#55efc4'), hex('#006b54')],
     orbIntensity: 0.6,
-    flowSpeed: 0.3,
-    noiseScale: 1.4,
-    brightness: 0.28,
+    flowSpeed: 0.22,
+    noiseScale: 0.75,
+    brightness: 0.42,
     particleDensity: 0.6,
   },
   EXECUTING: {
     colors: [hex('#fdcb6e'), hex('#ffeaa7'), hex('#c4941a')],
     orbIntensity: 0.9,
-    flowSpeed: 0.5,
-    noiseScale: 1.8,
-    brightness: 0.4,
+    flowSpeed: 0.35,
+    noiseScale: 0.85,
+    brightness: 0.55,
     particleDensity: 0.9,
   },
   WORKING: {
     colors: [hex('#a29bfe'), hex('#c8d6e5'), hex('#6c5ce7')],
     orbIntensity: 0.4,
-    flowSpeed: 0.2,
-    noiseScale: 1.2,
-    brightness: 0.2,
+    flowSpeed: 0.15,
+    noiseScale: 0.7,
+    brightness: 0.35,
     particleDensity: 0.4,
   },
   COMPLETE: {
     colors: [hex('#00b894'), hex('#55efc4'), hex('#00cec9')],
     orbIntensity: 0.8,
-    flowSpeed: 0.4,
-    noiseScale: 1.6,
-    brightness: 0.35,
+    flowSpeed: 0.3,
+    noiseScale: 0.8,
+    brightness: 0.5,
     particleDensity: 1.0,
   },
   ERROR: {
     colors: [hex('#d63031'), hex('#ff7675'), hex('#8b1a1a')],
     orbIntensity: 1.0,
-    flowSpeed: 0.6,
-    noiseScale: 2.0,
-    brightness: 0.35,
+    flowSpeed: 0.4,
+    noiseScale: 0.9,
+    brightness: 0.5,
     particleDensity: 0.8,
   },
   APPROVAL: {
     colors: [hex('#636e72'), hex('#b2bec3'), hex('#2d3436')],
     orbIntensity: 0.35,
-    flowSpeed: 0.12,
-    noiseScale: 1.1,
-    brightness: 0.18,
+    flowSpeed: 0.1,
+    noiseScale: 0.65,
+    brightness: 0.25,
     particleDensity: 0.3,
   },
   DISCONNECTED: {
     colors: [hex('#2d3436'), hex('#636e72'), hex('#1a1c1e')],
     orbIntensity: 0.15,
-    flowSpeed: 0.08,
-    noiseScale: 1.0,
-    brightness: 0.08,
+    flowSpeed: 0.06,
+    noiseScale: 0.6,
+    brightness: 0.12,
     particleDensity: 0.15,
   },
 };
@@ -190,22 +190,26 @@ void main() {
 
   float t = u_time * u_flowSpeed;
 
-  // Layered fluid noise for color blending
-  float n1 = fbm(p * u_noiseScale + vec2(t * 0.3, t * 0.2));
-  float n2 = fbm(p * u_noiseScale * 1.3 + vec2(-t * 0.2, t * 0.35) + 5.0);
-  float n3 = fbm(p * u_noiseScale * 0.8 + vec2(t * 0.15, -t * 0.25) + 10.0);
+  // Flowing noise field for color region selection
+  float flow = fbm(p * u_noiseScale * 0.7 + vec2(t * 0.4, t * 0.15));
+  flow = flow * 0.5 + 0.5;
 
-  // Map noise to [0,1] and create soft weights
-  n1 = n1 * 0.5 + 0.5;
-  n2 = n2 * 0.5 + 0.5;
-  n3 = n3 * 0.5 + 0.5;
+  // Secondary noise for organic distortion
+  float warp = fbm(p * u_noiseScale * 1.2 + vec2(-t * 0.25, t * 0.3) + 4.0);
+  flow = flow + warp * 0.15;
+  flow = clamp(flow, 0.0, 1.0);
 
-  // Weighted color blending
-  float totalW = n1 + n2 + n3 + 0.001;
-  vec3 fluidColor = (u_color0 * n1 + u_color1 * n2 + u_color2 * n3) / totalW;
+  // Three soft color bands with distinct regions
+  float w0 = smoothstep(0.0, 0.45, flow) * (1.0 - smoothstep(0.55, 1.0, flow));
+  float w1 = smoothstep(0.25, 0.6, flow) * (1.0 - smoothstep(0.75, 1.0, flow));
+  float w2 = smoothstep(0.5, 0.85, flow) * (1.0 - smoothstep(0.0, 0.15, flow));
 
-  // Add brightness variation
-  fluidColor *= u_brightness + n1 * 0.3;
+  // Normalize weights so one color dominates per region
+  float totalW = w0 + w1 + w2 + 0.001;
+  vec3 fluidColor = (u_color0 * w0 + u_color1 * w1 + u_color2 * w2) / totalW;
+
+  // Brightness variation based on flow
+  fluidColor *= u_brightness + flow * 0.25;
 
   // Central orb glow
   vec2 center = vec2(0.5 * aspect, 0.5);
