@@ -608,22 +608,59 @@ vec3 effectApiError(vec2 uv, vec2 p, float t, vec3 c0, vec3 c1, vec3 c2) {
   return col;
 }
 
-// 14: DISCONNECTED - everything fading out
+// 14: DISCONNECTED - TV shutdown effect (CRT power-off)
 vec3 effectDisconnected(vec2 uv, vec2 p, float t, vec3 c0, vec3 c1, vec3 c2) {
-  float d = length(uv - 0.5);
-  // fading noise
-  float n = fbm(p * 0.5 + t * 0.02) * 0.5 + 0.5;
-  vec3 col = c0 * n * 0.06;
-  // faint power-off symbol
-  float ring = abs(d - 0.12);
-  float powerRing = smoothstep(0.008, 0.002, ring) * step(d, 0.14);
-  float line_ = smoothstep(0.006, 0.001, abs(uv.x - 0.5));
-  line_ *= step(0.5, uv.y) * step(uv.y, 0.5 + 0.12);
-  float power = max(powerRing, line_);
-  col += c1 * power * 0.15;
-  // static fading
-  float static_ = hash(uv * 80.0 + floor(t * 2.0)) * 0.02;
-  col += vec3(static_);
+  // TV shutdown animation cycle (takes ~3 seconds to complete)
+  float cycleDuration = 3.0;
+  float cycleT = mod(t * 0.3, cycleDuration);
+  float progress = cycleT / cycleDuration;
+
+  // Phase 1 (0-0.4): Vertical compression - screen squishes into horizontal line
+  // Phase 2 (0.4-0.8): Line shrinks to center dot
+  // Phase 3 (0.8-1.0): Dot fades out
+
+  vec2 center = vec2(0.5, 0.5);
+  vec2 d = uv - center;
+
+  // Vertical and horizontal squeeze factors
+  float verticalSqueeze;
+  float horizontalSqueeze;
+
+  if (progress < 0.4) {
+    // Phase 1: Vertical compression
+    float phase = progress / 0.4;
+    verticalSqueeze = 1.0 - phase * 0.98;
+    horizontalSqueeze = 1.0;
+  } else if (progress < 0.8) {
+    // Phase 2: Horizontal compression to center dot
+    float phase = (progress - 0.4) / 0.4;
+    verticalSqueeze = 0.02;
+    horizontalSqueeze = 1.0 - phase * 0.98;
+  } else {
+    // Phase 3: Dot fades out
+    float phase = (progress - 0.8) / 0.2;
+    verticalSqueeze = 0.02 * (1.0 - phase);
+    horizontalSqueeze = 0.02 * (1.0 - phase);
+  }
+
+  // Apply squeeze
+  vec2 squeezed = vec2(d.x / max(horizontalSqueeze, 0.01), d.y / max(verticalSqueeze, 0.01));
+  float distFromCenter = length(squeezed);
+
+  // Simple shape: bright compressed screen
+  float screenMask = smoothstep(0.5, 0.2, distFromCenter);
+  float glow = exp(-distFromCenter * distFromCenter * 2.0);
+
+  // Combine
+  vec3 col = c0 * screenMask * 0.5;
+  col += c1 * glow * 0.5;
+
+  // Final fade to black
+  if (progress > 0.9) {
+    float fadeOut = 1.0 - (progress - 0.9) / 0.1;
+    col *= fadeOut;
+  }
+
   return col;
 }
 

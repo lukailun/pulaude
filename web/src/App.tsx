@@ -35,13 +35,35 @@ function App() {
   const [tool, setTool] = useState<string>('');
   const [connected, setConnected] = useState(false);
   const [animKey, setAnimKey] = useState(0);
+  const [showSettings, setShowDebugPanel] = useState(false);
+  const [demoMode, setDemoMode] = useState(false);
+  const [demoState, setDemoState] = useState<State>('IDLE');
 
   const handleStateChange = useCallback((msg: StateMessage) => {
+    if (demoMode) return;
     setState(msg.state);
     setTool(msg.tool || '');
     setAnimKey((k) => k + 1);
     engineRef.current?.transitionTo(msg.state);
+  }, [demoMode]);
+
+  const handleDemoStateSelect = useCallback((s: State) => {
+    setDemoState(s);
+    setState(s);
+    setAnimKey((k) => k + 1);
+    engineRef.current?.transitionTo(s);
   }, []);
+
+  const handleToggleDemoMode = useCallback(() => {
+    setDemoMode((prev) => {
+      if (!prev) {
+        setState(demoState);
+        setAnimKey((k) => k + 1);
+        engineRef.current?.transitionTo(demoState);
+      }
+      return !prev;
+    });
+  }, [demoState]);
 
   useEffect(() => {
     const engine = new ClaudeEngine(canvasRef.current!);
@@ -73,7 +95,7 @@ function App() {
   return (
     <>
       <canvas ref={canvasRef} />
-      <div className="overlay">
+      <div className="overlay" onClick={() => setShowDebugPanel((v) => !v)}>
         <div className="status" key={animKey}>
           <span className={`status-icon material-symbols-rounded ${cfg.anim}`}>
             {cfg.icon}
@@ -86,6 +108,35 @@ function App() {
         <div className="connection">
           <span className={`dot ${connected ? 'connected' : ''}`} />
           {connected ? 'Connected' : 'Disconnected'}
+        </div>
+      </div>
+
+      <div className={`settings-drawer ${showSettings ? 'open' : ''}`} onClick={(e) => e.stopPropagation()}>
+        <div className="settings-header">
+          <span>Settings</span>
+          <button className="settings-close" onClick={() => setShowDebugPanel(false)}>×</button>
+        </div>
+        <label className="settings-toggle">
+          <input
+            type="checkbox"
+            checked={demoMode}
+            onChange={handleToggleDemoMode}
+          />
+          <span>Demo Mode</span>
+        </label>
+        <div className="settings-states">
+          {(Object.keys(STATE_CONFIG) as State[]).map((s) => (
+            <button
+              key={s}
+              className={`settings-state-btn ${demoState === s ? 'active' : ''}`}
+              onClick={() => handleDemoStateSelect(s)}
+            >
+              <span className="material-symbols-rounded" style={{ fontSize: 18 }}>
+                {STATE_CONFIG[s].icon}
+              </span>
+              {STATE_CONFIG[s].label}
+            </button>
+          ))}
         </div>
       </div>
     </>
