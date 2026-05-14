@@ -1,0 +1,16 @@
+/* Success: check bounce + glow (COMPLETE) */
+.anim-success {
+  animation: success 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+             successGlow 2s ease-in-out infinite 0.6s;
+}
+
+@keyframes success {
+  0%   { transform: scale(0); opacity: 0; }
+  60%  { transform: scale(1.25); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes successGlow {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.3)); }
+  50%      { filter: drop-shadow(0 0 20px rgba(16, 185, 129, 0.6)); }
+}

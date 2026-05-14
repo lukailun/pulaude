@@ -1,0 +1,8 @@
+/* Spin fast: quick rotation (EXECUTING) */
+.anim-spin-fast {
+  animation: spinFast 0.8s linear infinite;
+}
+
+@keyframes spinFast {
+  to { transform: rotate(360deg); }
+}

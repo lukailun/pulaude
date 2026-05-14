@@ -1,0 +1,9 @@
+/* Denied: prohibited pulse (PERMISSION_DENIED) */
+.anim-denied {
+  animation: denied 2s ease-in-out infinite;
+}
+
+@keyframes denied {
+  0%, 100% { opacity: 0.5; transform: scale(0.95); filter: drop-shadow(0 0 4px rgba(239, 68, 68, 0.2)); }
+  50%      { opacity: 1;   transform: scale(1.05); filter: drop-shadow(0 0 16px rgba(239, 68, 68, 0.5)); }
+}

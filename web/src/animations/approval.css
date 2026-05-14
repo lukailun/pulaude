@@ -1,0 +1,9 @@
+/* Pulse warn: attention pulse (APPROVAL) */
+.anim-pulse-warn {
+  animation: pulseWarn 1.5s ease-in-out infinite;
+}
+
+@keyframes pulseWarn {
+  0%, 100% { transform: scale(1);   opacity: 0.6; filter: drop-shadow(0 0 4px rgba(234, 179, 8, 0.3)); }
+  50%      { transform: scale(1.12); opacity: 1;   filter: drop-shadow(0 0 16px rgba(234, 179, 8, 0.6)); }
+}

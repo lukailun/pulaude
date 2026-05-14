@@ -1,0 +1,12 @@
+/* Orbit: rotation with wobble (SUBAGENT_RUNNING) */
+.anim-orbit {
+  animation: orbit 2s linear infinite;
+}
+
+@keyframes orbit {
+  0%   { transform: rotate(0deg)   scale(1); }
+  25%  { transform: rotate(90deg)  scale(1.08); }
+  50%  { transform: rotate(180deg) scale(1); }
+  75%  { transform: rotate(270deg) scale(1.08); }
+  100% { transform: rotate(360deg) scale(1); }
+}

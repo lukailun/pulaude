@@ -1,0 +1,8 @@
+/* Spin: continuous rotation (WORKING — shared style with INITIALIZING) */
+.anim-spin {
+  animation: spin 1.2s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

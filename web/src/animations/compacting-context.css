@@ -1,0 +1,9 @@
+/* Shrink: inward contraction (COMPACTING_CONTEXT) */
+.anim-shrink {
+  animation: shrink 1.8s ease-in-out infinite;
+}
+
+@keyframes shrink {
+  0%, 100% { transform: scale(1);    opacity: 0.8; }
+  50%      { transform: scale(0.75); opacity: 1; }
+}

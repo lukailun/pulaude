@@ -1,0 +1,39 @@
+@import './idle.css';
+@import './initializing.css';
+@import './thinking.css';
+@import './compacting-context.css';
+@import './reading.css';
+@import './writing.css';
+@import './executing.css';
+@import './approval.css';
+@import './waiting-elicitation.css';
+@import './subagent-running.css';
+@import './task-management.css';
+@import './complete.css';
+@import './tool-error.css';
+@import './api-error.css';
+@import './disconnected.css';
+@import './working.css';
+@import './permission-denied.css';
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .anim-breathe,
+  .anim-spin,
+  .anim-spin-fast,
+  .anim-pulse,
+  .anim-shrink,
+  .anim-scan,
+  .anim-blink,
+  .anim-pulse-warn,
+  .anim-bounce,
+  .anim-orbit,
+  .anim-check-draw,
+  .anim-success,
+  .anim-shake,
+  .anim-glitch,
+  .anim-fade,
+  .anim-denied {
+    animation: none !important;
+  }
+}

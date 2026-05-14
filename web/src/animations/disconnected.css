@@ -1,0 +1,9 @@
+/* Fade: slow fade to ghost (DISCONNECTED) */
+.anim-fade {
+  animation: fade 1.5s ease-out forwards;
+}
+
+@keyframes fade {
+  0%   { opacity: 1;   transform: scale(1); }
+  100% { opacity: 0.3; transform: scale(0.9); }
+}

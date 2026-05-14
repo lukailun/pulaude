@@ -1,0 +1,9 @@
+/* Pulse: scale pulse (THINKING) */
+.anim-pulse {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1);   opacity: 0.8; }
+  50%      { transform: scale(1.15); opacity: 1; }
+}
