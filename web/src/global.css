@@ -242,3 +242,11 @@ html, body, #root {
   border-color: rgba(96, 165, 250, 0.3);
   color: rgba(255, 255, 255, 0.9);
 }
+
+.settings-hint {
+  margin-top: 8px;
+  padding: 8px 12px;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 12px;
+  line-height: 1.5;
+}

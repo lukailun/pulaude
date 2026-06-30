@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { createConnection, type StateMessage } from './connection';
 import type { BuddyState } from './engine';
+import { useShakeDetection, DIZZY_DURATION } from './useShakeDetection';
 
 interface StateConfig {
   label: string;
@@ -42,12 +43,49 @@ function App() {
   const [demoMode, setDemoMode] = useState(false);
   const [demoState, setDemoState] = useState<BuddyState>('idle');
   const idleRotateRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const dizzyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const stateRef = useRef<BuddyState>(state);
 
-  // Rotate idle GIF every 5s
+  // Keep stateRef in sync
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
+
+  // Shake detection → show dizzy.gif for a few seconds
+  const handleShake = useCallback(() => {
+    if (dizzyTimerRef.current) {
+      // Already dizzy, reset timer
+      clearTimeout(dizzyTimerRef.current);
+    } else {
+      // First shake: show dizzy
+      setGifSrc(`${GIF_BASE}/dizzy.gif`);
+    }
+    dizzyTimerRef.current = setTimeout(() => {
+      dizzyTimerRef.current = null;
+      // Revert to whatever the current state is now
+      setGifSrc(gifForState(stateRef.current));
+    }, DIZZY_DURATION);
+  }, []);
+
+  const { permission, requestPermission, needsPermission: requiresPerm } = useShakeDetection({
+    onShake: handleShake,
+    enabled: !demoMode,
+  });
+
+  // Cleanup dizzy timer on unmount
+  useEffect(() => {
+    return () => {
+      if (dizzyTimerRef.current) clearTimeout(dizzyTimerRef.current);
+    };
+  }, []);
+
+  // Rotate idle GIF every 5s (skip during dizzy)
   useEffect(() => {
     if (state === 'idle' && !demoMode) {
       idleRotateRef.current = setInterval(() => {
-        setGifSrc(gifForState('idle'));
+        if (!dizzyTimerRef.current) {
+          setGifSrc(gifForState('idle'));
+        }
       }, 5000);
       return () => { if (idleRotateRef.current) clearInterval(idleRotateRef.current); };
     } else {
@@ -58,7 +96,10 @@ function App() {
   const handleStateChange = useCallback((msg: StateMessage) => {
     if (demoMode) return;
     setState(msg.state);
-    setGifSrc(gifForState(msg.state));
+    // Don't override dizzy animation if active
+    if (!dizzyTimerRef.current) {
+      setGifSrc(gifForState(msg.state));
+    }
   }, [demoMode]);
 
   const handleDemoStateSelect = useCallback((s: BuddyState) => {
@@ -133,6 +174,25 @@ function App() {
           />
           <span>Demo Mode</span>
         </label>
+
+        {requiresPerm && permission === 'prompt' && (
+          <button className="settings-state-btn" onClick={requestPermission}>
+            <span className="material-symbols-rounded" style={{ fontSize: 18 }}>
+              vibration
+            </span>
+            Enable Shake Detection
+          </button>
+        )}
+        {requiresPerm && permission === 'denied' && (
+          <div className="settings-hint">
+            Motion permission denied. Enable in iOS Settings → Safari → Motion & Orientation Access.
+          </div>
+        )}
+        {!requiresPerm && permission === 'granted' && !demoMode && (
+          <div className="settings-hint">
+            📱 Shake your phone to show dizzy!
+          </div>
+        )}
         <div className="settings-states">
           {(Object.keys(STATE_CONFIG) as BuddyState[]).map((s) => (
             <button
