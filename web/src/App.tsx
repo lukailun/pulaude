@@ -1,63 +1,83 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
-import { ClaudeEngine, type BuddyState } from './engine';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { createConnection, type StateMessage } from './connection';
+import type { BuddyState } from './engine';
 
 interface StateConfig {
   label: string;
   icon: string;
-  anim: string;
+  gif: string;
 }
 
+const IDLE_GIFS = [
+  'idle_0.gif', 'idle_1.gif', 'idle_2.gif', 'idle_3.gif', 'idle_4.gif',
+  'idle_5.gif', 'idle_6.gif', 'idle_7.gif', 'idle_8.gif',
+];
+
 const STATE_CONFIG: Record<BuddyState, StateConfig> = {
-  idle:      { label: 'Idle',      icon: 'bedtime',           anim: 'anim-breathe' },
-  busy:      { label: 'Busy',      icon: 'sync',              anim: 'anim-spin' },
-  attention: { label: 'Attention', icon: 'gpp_maybe',         anim: 'anim-pulse-warn' },
-  celebrate: { label: 'Celebrate', icon: 'check_circle',      anim: 'anim-success' },
-  error:     { label: 'Error',     icon: 'error',             anim: 'anim-shake' },
-  sleep:     { label: 'Sleep',     icon: 'power_settings_new', anim: 'anim-fade' },
-  love:      { label: 'Love',      icon: 'favorite',          anim: 'anim-pulse' },
+  idle:      { label: 'Idle',      icon: 'bedtime',           gif: '' }, // random from IDLE_GIFS
+  busy:      { label: 'Busy',      icon: 'sync',              gif: 'busy.gif' },
+  attention: { label: 'Attention', icon: 'gpp_maybe',         gif: 'attention.gif' },
+  celebrate: { label: 'Celebrate', icon: 'check_circle',      gif: 'celebrate.gif' },
+  error:     { label: 'Error',     icon: 'error',             gif: 'dizzy.gif' },
+  sleep:     { label: 'Sleep',     icon: 'power_settings_new', gif: 'sleep.gif' },
+  love:      { label: 'Love',      icon: 'favorite',          gif: 'heart.gif' },
 };
 
+const GIF_BASE = '/characters/bufo';
+
+function pickIdleGif(): string {
+  return IDLE_GIFS[Math.floor(Math.random() * IDLE_GIFS.length)];
+}
+
+function gifForState(state: BuddyState): string {
+  if (state === 'idle') return `${GIF_BASE}/${pickIdleGif()}`;
+  return `${GIF_BASE}/${STATE_CONFIG[state].gif}`;
+}
+
 function App() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const engineRef = useRef<ClaudeEngine | null>(null);
   const [state, setState] = useState<BuddyState>('sleep');
+  const [gifSrc, setGifSrc] = useState(`${GIF_BASE}/sleep.gif`);
   const [connected, setConnected] = useState(false);
-  const [animKey, setAnimKey] = useState(0);
-  const [showSettings, setShowDebugPanel] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [demoMode, setDemoMode] = useState(false);
   const [demoState, setDemoState] = useState<BuddyState>('idle');
+  const idleRotateRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Rotate idle GIF every 5s
+  useEffect(() => {
+    if (state === 'idle' && !demoMode) {
+      idleRotateRef.current = setInterval(() => {
+        setGifSrc(gifForState('idle'));
+      }, 5000);
+      return () => { if (idleRotateRef.current) clearInterval(idleRotateRef.current); };
+    } else {
+      if (idleRotateRef.current) clearInterval(idleRotateRef.current);
+    }
+  }, [state, demoMode]);
 
   const handleStateChange = useCallback((msg: StateMessage) => {
     if (demoMode) return;
     setState(msg.state);
-    setAnimKey((k) => k + 1);
-    engineRef.current?.transitionTo(msg.state);
+    setGifSrc(gifForState(msg.state));
   }, [demoMode]);
 
   const handleDemoStateSelect = useCallback((s: BuddyState) => {
     setDemoState(s);
     setState(s);
-    setAnimKey((k) => k + 1);
-    engineRef.current?.transitionTo(s);
+    setGifSrc(gifForState(s));
   }, []);
 
   const handleToggleDemoMode = useCallback(() => {
     setDemoMode((prev) => {
       if (!prev) {
         setState(demoState);
-        setAnimKey((k) => k + 1);
-        engineRef.current?.transitionTo(demoState);
+        setGifSrc(gifForState(demoState));
       }
       return !prev;
     });
   }, [demoState]);
 
   useEffect(() => {
-    const engine = new ClaudeEngine(canvasRef.current!);
-    engineRef.current = engine;
-    engine.start();
-
     const host = window.location.hostname;
     const wsUrl = `ws://${host}:3847/ws`;
     const conn = createConnection({
@@ -72,7 +92,6 @@ function App() {
     });
 
     return () => {
-      engine.stop();
       conn.disconnect();
       wakeLock?.release();
     };
@@ -82,10 +101,13 @@ function App() {
 
   return (
     <>
-      <canvas ref={canvasRef} />
-      <div className="overlay" onClick={() => setShowDebugPanel((v) => !v)}>
-        <div className="status" key={animKey}>
-          <span className={`status-icon material-symbols-rounded ${cfg.anim}`}>
+      <div className="gif-container">
+        <img src={gifSrc} alt={state} className="gif-character" key={gifSrc} />
+      </div>
+
+      <div className="overlay" onClick={() => setShowSettings((v) => !v)}>
+        <div className="status">
+          <span className="status-icon material-symbols-rounded">
             {cfg.icon}
           </span>
           <div className="status-text">
@@ -101,7 +123,7 @@ function App() {
       <div className={`settings-drawer ${showSettings ? 'open' : ''}`} onClick={(e) => e.stopPropagation()}>
         <div className="settings-header">
           <span>Settings</span>
-          <button className="settings-close" onClick={() => setShowDebugPanel(false)}>×</button>
+          <button className="settings-close" onClick={() => setShowSettings(false)}>×</button>
         </div>
         <label className="settings-toggle">
           <input
