@@ -8,7 +8,8 @@
     "dev:web": "cd web && bun run dev",
     "build": "cd web && bun run build",
     "start": "NODE_ENV=production bun run server/index.ts",
-    "install:hooks": "bun run scripts/install-hooks.ts"
+    "install:hooks": "node hooks/install.cjs",
+    "uninstall:hooks": "node hooks/uninstall.cjs"
   },
   "type": "module",
   "private": true,

@@ -29,12 +29,16 @@ Bun.serve({
       for (const ws of clients) {
         ws.send(msg);
       }
-      return Response.json({ ok: true });
+      return Response.json({ ok: true }, {
+        headers: { 'x-pulaude-server': 'pulaude' },
+      });
     }
 
-    // 获取当前状态
+    // 获取当前状态（also used by auto-start for service discovery)
     if (url.pathname === '/api/current') {
-      return Response.json(currentState);
+      return Response.json(currentState, {
+        headers: { 'x-pulaude-server': 'pulaude' },
+      });
     }
 
     // 生产环境：serve 前端静态文件

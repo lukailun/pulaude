@@ -9,13 +9,13 @@ Pulaude 通过 Claude Code 的生命周期事件钩子，在浏览器中渲染�
 ## 架构
 
 ```
-Claude Code  →  relay.sh  →  Bun 服务器  →  WebSocket  →  浏览器 (Canvas)
-(生命周期事件)    (curl POST)        (端口 3847)                   (粒子引擎)
+Claude Code  →  pulaude-hook.cjs  →  Bun 服务器  →  WebSocket  →  浏览器 (Canvas)
+(生命周期事件)    (node, 读取 stdin)      (端口 3847)                   (粒子引擎)
 ```
 
 三个层级：
 
-- **Hook** -- Bash 脚本 (`relay.sh`)，通过 `hooks.json` 捕获 Claude Code 的生命周期事件，并将状态变化 POST 到服务器。
+- **Hook** -- Node.js 脚本 (`hooks/pulaude-hook.cjs`)，通过读取 stdin JSON 捕获 Claude Code 的生命周期事件，并将状态变化 POST 到服务器。自动启动脚本 (`hooks/auto-start.cjs`) 会在会话开始时自动启动服务器。
 - **Server** -- 基于 `Bun.serve()` 的 HTTP + WebSocket 服务器 (`server/index.ts`)，接收状态更新并广播给所有已连接的客户端。
 - **Web** -- React 19 前端 (`web/`)，使用自定义的 HTML5 Canvas 2D 粒子引擎渲染动态光球。
 
@@ -50,6 +50,12 @@ cd server && bun install && cd ..
 cd web && bun install && cd ..
 ```
 
+安装 hooks（追踪 Claude Code 会话）：
+
+```sh
+bun run install:hooks
+```
+
 启动后端服务器：
 
 ```sh
@@ -79,8 +85,13 @@ bun run start
 
 ```
 pulaude/
-  hooks.json               # Hook 定义（安装源）
-  relay.sh                 # Bash 中继脚本
+  hooks/
+    pulaude-hook.cjs       # 主 Hook 入口（读取 stdin，POST 到服务器）
+    auto-start.cjs         # SessionStart 时自动启动 Bun 服务器
+    install.cjs            # 安装 hooks 到 ~/.claude/settings.json
+    uninstall.cjs          # 从 settings.json 移除 hooks
+  hooks.json               # Hook 定义（参考/遗留）
+  relay.sh                 # Bash 中继脚本（项目级替代方案）
   shared/types.ts          # 共享 TypeScript 类型
   server/index.ts          # Bun HTTP + WebSocket 服务器
   web/
@@ -104,17 +115,22 @@ bun run install:hooks
 ```
 
 脚本会自动：
-1. 复制 `hook/relay.sh` 到 `~/.claude/pulaude/`
-2. 将 hooks 配置合并到 `~/.claude/settings.json`（兼容已有配置，不会覆盖）
+1. 复制 `pulaude-hook.cjs` 和 `auto-start.cjs` 到 `~/.claude/pulaude/`
+2. 存储项目路径用于自动启动服务器发现
+3. 注册 hooks 到 `~/.claude/settings.json`（基于 marker，兼容已有配置）
 
-或者手动操作：打开 `~/.claude/settings.json`，将 `hooks.json` 中的 `"hooks"` 键添加进去，并把所有 `$CLAUDE_PROJECT_DIR/hook` 替换为 `~/.claude/pulaude`。
+卸载：
+
+```sh
+bun run uninstall:hooks
+```
 
 ## 配置
 
-中继脚本默认指向 `http://localhost:3847/api/state`。可通过 `CLAUDE_RELAY_URL` 环境变量覆盖：
+Hook 脚本默认指向 `http://localhost:3847/api/state`。可通过 `PULAUDA_RELAY_URL` 环境变量覆盖：
 
 ```sh
-export CLAUDE_RELAY_URL="http://your-server:3847/api/state"
+export PULAUDA_RELAY_URL="http://your-server:3847/api/state"
 ```
 
 ## 开源协议

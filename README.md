@@ -9,13 +9,13 @@ Pulaude hooks into Claude Code's lifecycle events and renders an animated pulsin
 ## Architecture
 
 ```
-Claude Code  →  relay.sh  →  Bun server  →  WebSocket  →  Browser (Canvas)
-(lifecycle)     (curl POST)       (port 3847)                   (particle engine)
+Claude Code  →  pulaude-hook.cjs  →  Bun server  →  WebSocket  →  Browser (Canvas)
+(lifecycle)     (node, reads stdin)    (port 3847)                   (particle engine)
 ```
 
 Three layers:
 
-- **Hook** -- A bash script (`relay.sh`) that captures Claude Code lifecycle events via `hooks.json` and POSTs state changes to the server.
+- **Hook** -- A Node.js script (`hooks/pulaude-hook.cjs`) that captures Claude Code lifecycle events by reading stdin JSON and POSTs state changes to the server. An auto-start script (`hooks/auto-start.cjs`) automatically launches the server on session start.
 - **Server** -- A `Bun.serve()` HTTP + WebSocket server (`server/index.ts`) that receives state updates and broadcasts them to all connected clients.
 - **Web** -- A React 19 frontend (`web/`) with a custom HTML5 Canvas 2D particle engine that renders the animated orb.
 
@@ -50,6 +50,12 @@ cd server && bun install && cd ..
 cd web && bun install && cd ..
 ```
 
+Install hooks (to track Claude Code sessions):
+
+```sh
+bun run install:hooks
+```
+
 Start the backend server:
 
 ```sh
@@ -79,8 +85,13 @@ The app will be served at http://localhost:3847.
 
 ```
 pulaude/
-  hooks.json               # Hook definitions (install source)
-  relay.sh                 # Bash relay script
+  hooks/
+    pulaude-hook.cjs       # Main hook entry point (reads stdin, POSTs to server)
+    auto-start.cjs         # Auto-launches Bun server on SessionStart
+    install.cjs            # Installs hooks into ~/.claude/settings.json
+    uninstall.cjs          # Removes hooks from settings.json
+  hooks.json               # Hook definitions (reference/legacy)
+  relay.sh                 # Bash relay script (project-level alternative)
   shared/types.ts          # Shared TypeScript types
   server/index.ts          # Bun HTTP + WebSocket server
   web/
@@ -104,17 +115,22 @@ bun run install:hooks
 ```
 
 The script will:
-1. Copy `hook/relay.sh` to `~/.claude/pulaude/`
-2. Merge hooks into `~/.claude/settings.json` (preserves existing config)
+1. Copy `pulaude-hook.cjs` and `auto-start.cjs` to `~/.claude/pulaude/`
+2. Store the project path for auto-start server discovery
+3. Register hooks into `~/.claude/settings.json` (marker-based, preserves existing config)
 
-Or manually: open `~/.claude/settings.json`, add the `"hooks"` key from `hooks.json`, replacing all `$CLAUDE_PROJECT_DIR/hook` with `~/.claude/pulaude`.
+To uninstall:
+
+```sh
+bun run uninstall:hooks
+```
 
 ## Configuration
 
-The relay script targets `http://localhost:3847/api/state` by default. Override with the `CLAUDE_RELAY_URL` environment variable:
+The hook script targets `http://localhost:3847/api/state` by default. Override with the `PULAUDA_RELAY_URL` environment variable:
 
 ```sh
-export CLAUDE_RELAY_URL="http://your-server:3847/api/state"
+export PULAUDA_RELAY_URL="http://your-server:3847/api/state"
 ```
 
 ## License
