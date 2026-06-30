@@ -1,28 +1,15 @@
-export type ClaudeState =
-  | 'IDLE'
-  | 'INITIALIZING'
-  | 'THINKING'
-  | 'COMPACTING_CONTEXT'
-  | 'READING'
-  | 'WRITING'
-  | 'EXECUTING'
-  | 'APPROVAL'
-  | 'WAITING_ELICITATION'
-  | 'SUBAGENT_RUNNING'
-  | 'TASK_MANAGEMENT'
-  | 'COMPLETE'
-  | 'TOOL_ERROR'
-  | 'API_ERROR'
-  | 'DISCONNECTED'
-  | 'WORKING'
-  | 'PERMISSION_DENIED';
+export type BuddyState =
+  | 'idle'
+  | 'busy'
+  | 'attention'
+  | 'celebrate'
+  | 'error'
+  | 'sleep'
+  | 'love';
 
 export interface StateMessage {
   type: 'state_change';
-  state: ClaudeState;
-  previousState?: ClaudeState;
-  tool?: string;
-  toolDetail?: string;
+  state: BuddyState;
   timestamp: number;
   sessionId: string;
 }

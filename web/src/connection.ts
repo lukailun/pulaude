@@ -1,10 +1,10 @@
-import type { State } from './engine';
+import type { BuddyState } from './engine';
 
 export interface StateMessage {
   type: 'state_change';
-  state: State;
-  tool?: string;
+  state: BuddyState;
   timestamp: number;
+  sessionId: string;
 }
 
 interface ConnectionOptions {
@@ -33,7 +33,6 @@ export function createConnection(options: ConnectionOptions) {
 
     ws.onclose = () => {
       options.onConnectionChange(false);
-      // 2秒后重连
       reconnectTimer = setTimeout(connect, 2000);
     };
 

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { ClaudeEngine, type State } from './engine';
+import { ClaudeEngine, type BuddyState } from './engine';
 import { createConnection, type StateMessage } from './connection';
 
 interface StateConfig {
@@ -8,46 +8,34 @@ interface StateConfig {
   anim: string;
 }
 
-const STATE_CONFIG: Record<State, StateConfig> = {
-  IDLE:               { label: 'Idle',                icon: 'bedtime',          anim: 'anim-breathe' },
-  INITIALIZING:       { label: 'Initializing',        icon: 'progress_activity', anim: 'anim-spin' },
-  THINKING:           { label: 'Thinking',            icon: 'psychology',        anim: 'anim-pulse' },
-  COMPACTING_CONTEXT: { label: 'Compacting Context',  icon: 'compress',          anim: 'anim-shrink' },
-  READING:            { label: 'Reading',             icon: 'auto_stories',      anim: 'anim-scan' },
-  WRITING:            { label: 'Writing',             icon: 'edit_note',         anim: 'anim-blink' },
-  EXECUTING:          { label: 'Executing',           icon: 'terminal',          anim: 'anim-spin-fast' },
-  APPROVAL:           { label: 'Awaiting Approval',   icon: 'gpp_maybe',         anim: 'anim-pulse-warn' },
-  WAITING_ELICITATION:{ label: 'Waiting for Input',   icon: 'chat',              anim: 'anim-bounce' },
-  SUBAGENT_RUNNING:   { label: 'Sub-agent Running',   icon: 'hub',               anim: 'anim-orbit' },
-  TASK_MANAGEMENT:    { label: 'Task Management',     icon: 'task_alt',          anim: 'anim-check-draw' },
-  COMPLETE:           { label: 'Complete',            icon: 'check_circle',      anim: 'anim-success' },
-  TOOL_ERROR:         { label: 'Tool Error',          icon: 'error',             anim: 'anim-shake' },
-  API_ERROR:          { label: 'API Error',           icon: 'cloud_off',         anim: 'anim-glitch' },
-  DISCONNECTED:       { label: 'Disconnected',        icon: 'power_settings_new', anim: 'anim-fade' },
-  WORKING:            { label: 'Working',             icon: 'sync',              anim: 'anim-spin' },
-  PERMISSION_DENIED:  { label: 'Permission Denied',   icon: 'block',             anim: 'anim-denied' },
+const STATE_CONFIG: Record<BuddyState, StateConfig> = {
+  idle:      { label: 'Idle',      icon: 'bedtime',           anim: 'anim-breathe' },
+  busy:      { label: 'Busy',      icon: 'sync',              anim: 'anim-spin' },
+  attention: { label: 'Attention', icon: 'gpp_maybe',         anim: 'anim-pulse-warn' },
+  celebrate: { label: 'Celebrate', icon: 'check_circle',      anim: 'anim-success' },
+  error:     { label: 'Error',     icon: 'error',             anim: 'anim-shake' },
+  sleep:     { label: 'Sleep',     icon: 'power_settings_new', anim: 'anim-fade' },
+  love:      { label: 'Love',      icon: 'favorite',          anim: 'anim-pulse' },
 };
 
 function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<ClaudeEngine | null>(null);
-  const [state, setState] = useState<State>('IDLE');
-  const [tool, setTool] = useState<string>('');
+  const [state, setState] = useState<BuddyState>('sleep');
   const [connected, setConnected] = useState(false);
   const [animKey, setAnimKey] = useState(0);
   const [showSettings, setShowDebugPanel] = useState(false);
   const [demoMode, setDemoMode] = useState(false);
-  const [demoState, setDemoState] = useState<State>('IDLE');
+  const [demoState, setDemoState] = useState<BuddyState>('idle');
 
   const handleStateChange = useCallback((msg: StateMessage) => {
     if (demoMode) return;
     setState(msg.state);
-    setTool(msg.tool || '');
     setAnimKey((k) => k + 1);
     engineRef.current?.transitionTo(msg.state);
   }, [demoMode]);
 
-  const handleDemoStateSelect = useCallback((s: State) => {
+  const handleDemoStateSelect = useCallback((s: BuddyState) => {
     setDemoState(s);
     setState(s);
     setAnimKey((k) => k + 1);
@@ -102,7 +90,6 @@ function App() {
           </span>
           <div className="status-text">
             <div className="state-name">{cfg.label}</div>
-            {tool && <div className="tool-name">{tool}</div>}
           </div>
         </div>
         <div className="connection">
@@ -125,7 +112,7 @@ function App() {
           <span>Demo Mode</span>
         </label>
         <div className="settings-states">
-          {(Object.keys(STATE_CONFIG) as State[]).map((s) => (
+          {(Object.keys(STATE_CONFIG) as BuddyState[]).map((s) => (
             <button
               key={s}
               className={`settings-state-btn ${demoState === s ? 'active' : ''}`}
